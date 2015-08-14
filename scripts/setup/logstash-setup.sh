@@ -10,7 +10,7 @@ tar -xzf "${LOGSTASHVER}.tar.gz"
 rm "${LOGSTASHVER}.tar.gz"
 mv "${LOGSTASHVER}" "${REPOPATH}"
 
-if [ ! -d "$LOGPATH" ] then 
+if [ ! -d "$LOGPATH" ]; then 
 		
 	mkdir "${LOGPATH}"
 fi
