@@ -9,4 +9,8 @@ wget "${LOGSTASHDL}"
 tar -xzf "${LOGSTASHVER}.tar.gz"
 rm "${LOGSTASHVER}.tar.gz"
 mv "${LOGSTASHVER}" "${REPOPATH}"
-mkdir "${LOGPATH}"
+
+if [ ! -d "$LOGPATH" ] then 
+		
+	mkdir "${LOGPATH}"
+fi
