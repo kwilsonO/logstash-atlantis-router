@@ -1,5 +1,5 @@
 echo "Stopping logstash..."
-myid="$(ps -ef | grep "logstash" | grep -v grep | awk '{print $2}')"
+myid="$(ps -ef | grep "logstash" | grep -v grep | grep -v bash | awk '{print $2}')"
 
 if [ "${myid}" = "" ]; then 
 
