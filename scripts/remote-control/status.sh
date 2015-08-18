@@ -1,10 +1,10 @@
-pid=$(ps -ef | grep "logstash" | grep -v grep | awk '{print $2}')
+myid="$(ps -ef | grep "logstash" | grep -v grep | awk '{print $2}')"
 
-if [ pid = "" ]; then 
+if [ "${myid}" = "" ]; then 
 
 	echo "No logstash process found."
 else
 
-	echo "[${pid}] atlantis-router logstash running."
+	echo "[${myid}] atlantis-router logstash running."
 
 fi
