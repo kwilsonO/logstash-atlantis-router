@@ -10,27 +10,33 @@ LOGPATH="/var/log/atlantis/logstash"
 #Instance Data gathering
 
 URL="http://169.254.169.254/latest/meta-data"
-INSTFULLHOST=$(curl ${URL}/hostname)
-INSTID=$(curl ${URL}/instance-id)
-INSTTYPE=$(curl ${URL}/instance-type)
-INSTLOCALHST=$(curl ${URL}/local-hostname)
-INSTLOCALIPV4=$(curl ${URL}/local-ipv4)
-INSTMACADDR=$(curl ${URL}/mac)
-INSTPUBHOST=$(curl ${URL}/public-hostname)
-INSTPUBIP=$(curl ${URL}/public-ipv4)
-INSTSECG=$(curl ${URL}/security-groups)
+declare -A INSTANCEDATA
+INSTANCEDATA[INSTFULLHOST]="hostname"
+INSTANCEDATA[INSTID]="instance-id"
+INSTANCEDATA[INSTTYPE]="instance-type"
+INSTANCEDATA[INSTLOCALHST]="local-hostname"
+INSTANCEDATA[INSTLOCALIPV4]="local-ipv4"
+INSTANCEDATA[INSTMACADDR]="mac"
+INSTANCEDATA[INSTPUBHOST]="public-hostname"
+INSTANCEDATA[INSTPUBIP]="public-ipv4"
+INSTANCEDATA[INSTSECG]="security-groups"
 
+if [ -e "${CONFIGDIR}/${REPONAME}.conf" ]; then
+	echo "Removing old conf file..."
+	rm "${CONFIGDIR}/${REPONAME}.conf"
+fi
+#copy fresh template
+echo "Copying fresh template and inserting values..."
 cp $CONFIGDIR/templates/$REPONAME.template.conf $CONFIGDIR/$REPONAME.conf
 
-sed -i "s/%{INSTFULLHOST}/${INSTFULLHOST}/g" $CONFIGDIR/$REPONAME.conf
-sed -i "s/%{INSTID}/${INSTID}/g" $CONFIGDIR/$REPONAME.conf
-sed -i "s/%{INSTTYPE}/${INSTTYPE}/g" $CONFIGDIR/$REPONAME.conf
-sed -i "s/%{INSTLOCALHST}/${INSTLOCALHST}/g" $CONFIGDIR/$REPONAME.conf
-sed -i "s/%{INSTLOCALIPV4}/${INSTLOCALIPV4}/g" $CONFIGDIR/$REPONAME.conf
-sed -i "s/%{INSTMACADDR}/${INSTMACADDR}/g" $CONFIGDIR/$REPONAME.conf
-sed -i "s/%{INSTPUBHOST}/${INSTPUBHOST}/g" $CONFIGDIR/$REPONAME.conf
-sed -i "s/%{INSTPUBIP}/${INSTPUBIP}/g" $CONFIGDIR/$REPONAME.conf
-sed -i "s/%{INSTSECG}/${INSTSECG}/g" $CONFIGDIR/$REPONAME.conf
+for i in "${!INSTANCEDATA[@]}"
+do
+	VAL=$(curl -s "${URL}/${INSTANCEDATA[${i}]}")
+	#replace any spaces with colon
+	VAL=$(echo $VAL | sed 's/ /:/g')
+	SEDSTR="s/${i}/${VAL}/"
+	sed -i $SEDSTR $CONFIGDIR/$REPONAME.conf
+done
 
 #Other Logstash
 export SINCEDB_DIR="$REPOPATH"
