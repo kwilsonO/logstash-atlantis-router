@@ -1,6 +1,11 @@
 LOGSTASHVER="logstash-1.5.3"
 REPONAME="logstash-atlantis-router"
 REPOPATH="/root/atlantis-analytics"
+LOGSTASHPATH="${REPOPATH}/${REPONAME}"
+LOGSTASHDIR="${LOGSTASHPATH}/${LOGSTASHVER}"
+CONFIGDIR="${LOGSTASHPATH}/config-files"
+LOGPATH="/var/log/atlantis/logstash"
+
 
 #Instance Data gathering
 
@@ -14,14 +19,20 @@ INSTMACADDR=$(curl ${URL}/mac)
 INSTPUBHOST=$(curl ${URL}/public-hostname)
 INSTPUBIP=$(curl ${URL}/public-ipv4)
 INSTSECG=$(curl ${URL}/security-groups)
-CONFIGSTR="filter { mutate { add_field => { 'host-full-hostname' => '${INSTFULLHOST}'  } add_field => { 'host-inst-id' => '${INSTID}' } add_field => { 'host-inst-type' => '${INSTTYPE}' } add_field => { 'host-local-hostname' => '${INSTLOCALHST}' } add_field => { 'host-local-ipv4' => '${INSTLOCALIPV4}' } add_field => { 'host-mac-addr' => '${INSTMACADDR}' } add_field => { 'host-pub-hostname' => '${INSTPUBHOST}' } add_field => { 'host-pub-ipv4' => '${INSTPUBIP}' } add_field => { 'host-sec-groups' => '${INSTSECG}' }  } }"
+
+cp $CONFIGDIR/templates/$REPONAME.template.conf $CONFIGDIR/$REPONAME.conf
+
+sed -i "s/%{INSTFULLHOST}/${INSTFULLHOST}/g" $CONFIGDIR/$REPONAME.conf
+sed -i "s/%{INSTID}/${INSTID}/g" $CONFIGDIR/$REPONAME.conf
+sed -i "s/%{INSTTYPE}/${INSTTYPE}/g" $CONFIGDIR/$REPONAME.conf
+sed -i "s/%{INSTLOCALHST}/${INSTLOCALHST}/g" $CONFIGDIR/$REPONAME.conf
+sed -i "s/%{INSTLOCALIPV4}/${INSTLOCALIPV4}/g" $CONFIGDIR/$REPONAME.conf
+sed -i "s/%{INSTMACADDR}/${INSTMACADDR}/g" $CONFIGDIR/$REPONAME.conf
+sed -i "s/%{INSTPUBHOST}/${INSTPUBHOST}/g" $CONFIGDIR/$REPONAME.conf
+sed -i "s/%{INSTPUBIP}/${INSTPUBIP}/g" $CONFIGDIR/$REPONAME.conf
+sed -i "s/%{INSTSECG}/${INSTSECG}/g" $CONFIGDIR/$REPONAME.conf
+
 #Other Logstash
-
-LOGSTASHPATH="${REPOPATH}/${REPONAME}"
-LOGSTASHDIR="${LOGSTASHPATH}/${LOGSTASHVER}"
-CONFIGDIR="${LOGSTASHPATH}/config-files"
-LOGPATH="/var/log/atlantis/logstash"
-
 export SINCEDB_DIR="$REPOPATH"
 
 if [ -e "${LOGPATH}/out.log" ]; then
